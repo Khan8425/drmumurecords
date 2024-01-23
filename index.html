@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dr.MumuRecords</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 20px;
+      background-color: #f4f4f4;
+    }
+
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    th,
+    td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    form {
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+
+    button {
+      background-color: #4caf50;
+      color: #fff;
+      padding: 10px 15px;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    @media (max-width: 768px) {
+      table {
+        overflow-x: auto;
+      }
+    }
+
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    label[for="search"] {
+      margin-right: 10px;
+    }
+
+    input#search {
+      padding: 10px;
+      width: 200px;
+    }
+
+    input#remarks {
+      width: 100%;
+    }
+
+    td:last-child button {
+      margin-right: 5px;
+    }
+
+    @keyframes rowDeleteAnimation {
+      from {
+        background-color: #ffc0cb;
+      }
+
+      to {
+        opacity: 0;
+        height: 0;
+        padding: 0;
+        margin: 0;
+        border: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Dr.MumuRecords</h1>
+
+  <form id="recordForm">
+    <label for="manuscriptId">Manuscript ID:</label>
+    <input type="text" id="manuscriptId" required>
+
+    <label for="titles">Titles:</label>
+    <input type="text" id="titles" required>
+
+    <label for="journals">Journals:</label>
+    <input type="text" id="journals" required>
+
+    <label for="client">Client:</label>
+    <input type="text" id="client" required>
+
+    <label for="submitterName">Submitter Name:</label>
+    <input type="text" id="submitterName" required>
+
+    <label for="writerName">Writer Name:</label>
+    <input type="text" id="writerName" required>
+
+    <label for="reviewerR1">Reviewer R1:</label>
+    <input type="text" id="reviewerR1" required>
+
+    <label for="reviewerR2">Reviewer R2:</label>
+    <input type="text" id="reviewerR2" required>
+
+    <label for="reviewerR3">Reviewer R3:</label>
+    <input type="text" id="reviewerR3" required>
+
+    <label for="status">Status:</label>
+    <input type="text" id="status" required>
+
+    <label for="remarks">Remarks (Optional):</label>
+    <input type="text" id="remarks">
+
+    <button type="button" onclick="addRecord()">Add Record</button>
+  </form>
+
+  <label for="search">Search:</label>
+  <input type="text" id="search" oninput="filterRecords()">
+
+  <table id="recordTable">
+    <tr>
+      <th>Manuscript ID</th>
+      <th>Titles</th>
+      <th>Journals</th>
+      <th>Client</th>
+      <th>Submitter Name</th>
+      <th>Writer Name</th>
+      <th>Reviewer R1</th>
+      <th>Reviewer R2</th>
+      <th>Reviewer R3</th>
+      <th>Status</th>
+      <th>Remarks</th>
+      <th>Action</th>
+    </tr>
+  </table>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      loadRecords();
+    });
+
+    function addRecord() {
+      var manuscriptId = document.getElementById('manuscriptId').value;
+      var titles = document.getElementById('titles').value;
+      var journals = document.getElementById('journals').value;
+      var client = document.getElementById('client').value;
+      var submitterName = document.getElementById('submitterName').value;
+      var writerName = document.getElementById('writerName').value;
+      var reviewerR1 = document.getElementById('reviewerR1').value;
+      var reviewerR2 = document.getElementById('reviewerR2').value;
+      var reviewerR3 = document.getElementById('reviewerR3').value;
+      var status = document.getElementById('status').value;
+      var remarks = document.getElementById('remarks').value;
+      if (manuscriptId && titles && journals && client && submitterName && writerName && reviewerR1 && reviewerR2 && reviewerR3 && status) {
+        var table = document.getElementById('recordTable');
+        var newRow = table.insertRow(table.rows.length);
+        var cells = [
+          manuscriptId, titles, journals, client, submitterName,
+          writerName, reviewerR1, reviewerR2, reviewerR3, status, remarks
+        ];
+        for (var i = 0; i < cells.length; i++) {
+          var cell = newRow.insertCell(i);
+          cell.innerHTML = cells[i];
+        }
+        var actionCell = newRow.insertCell(cells.length);
+        actionCell.innerHTML = '<button onclick="editRecord(this)">Edit</button> <button onclick="deleteRecord(this)">Delete</button>';
+        clearInputFields();
+        saveRecords();
+      } else {
+        alert('Please fill in all required fields.');
+      }
+    }
+
+    function editRecord(button) {
+      var row = button.parentNode.parentNode;
+      var cells = row.cells;
+      document.getElementById('manuscriptId').value = cells[0].innerHTML;
+      document.getElementById('titles').value = cells[1].innerHTML;
+      document.getElementById('journals').value = cells[2].innerHTML;
+      document.getElementById('client').value = cells[3].innerHTML;
+      document.getElementById('submitterName').value = cells[4].innerHTML;
+      document.getElementById('writerName').value = cells[5].innerHTML;
+      document.getElementById('reviewerR1').value = cells[6].innerHTML;
+      document.getElementById('reviewerR2').value = cells[7].innerHTML;
+      document.getElementById('reviewerR3').value = cells[8].innerHTML;
+      document.getElementById('status').value = cells[9].innerHTML;
+      document.getElementById('remarks').value = cells[10].innerHTML;
+      row.parentNode.removeChild(row);
+      saveRecords();
+    }
+
+    function deleteRecord(button) {
+      var row = button.parentNode.parentNode;
+      row.style.animation = 'rowDeleteAnimation 0.5s ease';
+      setTimeout(function() {
+        row.parentNode.removeChild(row);
+        saveRecords();
+      }, 500);
+    }
+
+    function clearInputFields() {
+      document.getElementById('manuscriptId').value = '';
+      document.getElementById('titles').value = '';
+      document.getElementById('journals').value = '';
+      document.getElementById('client').value = '';
+      document.getElementById('submitterName').value = '';
+      document.getElementById('writerName').value = '';
+      document.getElementById('reviewerR1').value = '';
+      document.getElementById('reviewerR2').value = '';
+      document.getElementById('reviewerR3').value = '';
+      document.getElementById('status').value = '';
+      document.getElementById('remarks').value = '';
+    }
+
+    function saveRecords() {
+      var table = document.getElementById('recordTable');
+      var records = [];
+      for (var i = 1; i < table.rows.length; i++) {
+        var cells = table.rows[i].cells;
+        var record = [];
+        for (var j = 0; j < cells.length - 1; j++) {
+          record.push(cells[j].innerHTML.trim());
+        }
+        records.push(record);
+      }
+      localStorage.setItem('drMumuRecords', JSON.stringify(records));
+    }
+
+    function loadRecords() {
+      var storedRecords = localStorage.getItem('drMumuRecords');
+      if (storedRecords) {
+        var records = JSON.parse(storedRecords);
+        var table = document.getElementById('recordTable');
+        for (var i = 0; i < records.length; i++) {
+          var newRow = table.insertRow(table.rows.length);
+          var record = records[i];
+          for (var j = 0; j < record.length; j++) {
+            var cell = newRow.insertCell(j);
+            cell.innerHTML = record[j];
+          }
+          var actionCell = newRow.insertCell(record.length);
+          actionCell.innerHTML = '<button onclick="editRecord(this)">Edit</button> <button onclick="deleteRecord(this)">Delete</button>';
+        }
+      }
+    }
+
+    function filterRecords() {
+      var input, filter, table, tr, td, i, txtValue;
+      input = document.getElementById('search');
+      filter = input.value.toUpperCase();
+      table = document.getElementById('recordTable');
+      tr = table.getElementsByTagName('tr');
+      for (i = 1; i < tr.length; i++) {
+        var cells = tr[i].getElementsByTagName('td');
+        var display = false;
+        for (var j = 0; j < cells.length; j++) {
+          if (cells[j]) {
+            txtValue = cells[j].textContent || cells[j].innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+              display = true;
+              break;
+            }
+          }
+        }
+        tr[i].style.display = display ? '' : 'none';
+      }
+    }
+  </script>
+  <!-- Add these script tags to your HTML file -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.2/firebase-database.js"></script>
+  <!-- Include the Socket.IO library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+
+</body>
+
+</html>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-User Interface</title>
+  <style>
+    /* Add your CSS styles here */
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <!-- Your application content goes here -->
+  </div>
+
+  <!-- Include your JavaScript file -->
+  <script src="your_script.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+  <script src="your_script.js"></script>
+</body>
+
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  
+</body>
+</html>
